@@ -9,7 +9,7 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-
+let employeeArray = [];
 function questions() {
     inquirer.prompt(
         [
@@ -56,8 +56,11 @@ function questions() {
                 default:
                     break;
             }
+           let directory = path.resolve(__dirname,"output");
+           let team = path.join(directory,"team.html")
+            writeToFile(team);
+           
         }
-
 
         )
 };
@@ -72,8 +75,9 @@ function createManager(prevData) {
             },
           
         ]
-    ).then((managerData, prevData) => {
-        const newManager = new Manager(managerData.officeNumber,prevData.role);
+    ).then((managerData) => {
+        const newManager = new Manager(prevData.name, prevData.id, prevData.email , managerData.officeNumber);
+        employeeArray.push(newManager);
     })
 
 }
@@ -87,7 +91,10 @@ function createIntern() {
                 message: "School:"
             },
         ]
-    )
+    ).then((InternData) => {
+        const newIntern = new Intern(prevData.name, prevData.id, prevData.email , internData.school);
+        employeeArray.push(newIntern);
+    })
 }
 
 function createEngineer() {
@@ -95,15 +102,18 @@ function createEngineer() {
         [
             {
                 type: "input",
-                name: "githubUser",
+                name: "github",
                 message: "GitHub Username:"
             },
         ]
-    )
+    ).then((engineerData) => {
+        const newEngineer = new Engineer(prevData.name, prevData.id, prevData.email , engineerData.github);
+        employeeArray.push(newEngineer);
+    })
 }
 
-function writeToFile(fileName, data) {
-    fs.writeFile(fileName, data, function (err) {
+function writeToFile(fileName) {
+    fs.writeFile(fileName, render(employeeArray), function (err) {
         if (err) throw err;
         console.log("saved");
     })
